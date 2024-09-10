@@ -3,6 +3,8 @@
 
 Mint Matrix is a Web3 platform that provides an interactive introduction to blockchain technology. It features a wallet connection, token management, and a Solana faucet for developers. The application is built with React, Next.js, and Solana Web3.js, and styled with Tailwind CSS.
 
+  Project Link: [https://mint-matrix.vercel.app/](https://mint-matrix.vercel.app/)
+
 
 
 <div align="center">
