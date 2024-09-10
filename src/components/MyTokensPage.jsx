@@ -235,6 +235,7 @@ export function MyTokens() {
               <Switch
                 id="network"
                 className="m-2 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                checked={network === "devnet"}
                 onCheckedChange={(checked) => {
                   setNetwork(checked ? "devnet" : "mainnet-beta");
                 }}
