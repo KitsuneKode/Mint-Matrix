@@ -50,7 +50,7 @@ export async function getTokenAccounts(walletToQuery: PublicKey, network: string
     const tokenDecimals: number = parsedAccountInfo["parsed"]["info"]["tokenAmount"]["decimals"];
     
 
-    console.log(`--All info: ${JSON.stringify(parsedAccountInfo, null, 2)}`);
+    // console.log(`--All info: ${JSON.stringify(parsedAccountInfo, null, 2)}`);
 
     const mint = new PublicKey(mintAddress);
     let metadata;
