@@ -151,6 +151,7 @@ export function MyTokens() {
   useEffect(() => {
     const fetchTokens = async () => {
       if (!connected) {
+        setTokens(mockTokens); // Mock tokens if not connected
         return;
       }
 
@@ -243,12 +244,21 @@ export function MyTokens() {
           )}
         </div>
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-4 h-[2px] w-full" />
+        {!connected && (
+          <>
+            <div className="text-center text-2xl font-bold text-stone-500">
+              These are mock tokens for demonstration purposes
+            </div>
+            <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-4 h-[2px] w-full" />
+          </>
+        )}
         <CardContent className="p-8 relative z-10">
           {tokens.length === 0 && (
             <div className="text-center text-2xl font-bold text-stone-500">
               You have 0 tokens
             </div>
           )}
+
           {tokens.map((token) => (
             <div key={token.id} className="mb-6 last:mb-0 token-card">
               <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
