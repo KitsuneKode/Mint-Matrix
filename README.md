@@ -30,11 +30,7 @@ Mint Matrix is a Web3 platform that provides an interactive introduction to bloc
 
 ## Usage Demo
 
-<div align="center">
-   <video width="600" controls>
-    <source src="https://github.com/user-attachments/assets/3ad77c12-4843-4ae6-9567-50d099b833fa" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+[Demo Video](https://github.com/user-attachments/assets/3ad77c12-4843-4ae6-9567-50d099b833fa)
   
 </div>
 
