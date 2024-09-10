@@ -69,6 +69,14 @@ The faucet page enables developers to request Solana tokens for testing purposes
 - Balance display and refresh
 - Transaction signature copying
 
+## TODO
+
+### 1. Send Tokens 
+  - Integrate the send token logic to enable real token transfers.
+  
+### 2. Confirmation Modal
+  - Add a confirmation modal for token transfers.
+
 ## Prerequisites
 
 - Node.js (v14 or later)
