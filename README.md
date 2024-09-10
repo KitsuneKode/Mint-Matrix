@@ -105,20 +105,20 @@ The authentication modal asks users to sign a message to  prove ownership of a w
 ## Installation
 
 1. Clone the repository:
-
-git clone https://github.com/kitsunekode/mint-matrix.git
-
+```
+git clone https://github.com/kitsunekode/mint-matrix.git 
+```
 2. Navigate to the project directory:
-
+```
 cd mint-matrix
-
+```
 3. Install dependencies:
-
+```
 npm install
 or
 
 yarn install
-
+```
 
 
 ## Usage
