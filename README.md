@@ -72,10 +72,10 @@ The faucet page enables developers to request Solana tokens for testing purposes
 ## TODO
 
 ### 1. Send Tokens 
-  - Integrate the send token logic to enable real token transfers.
+  - [ ] Integrate the send token logic to enable real token transfers.
   
 ### 2. Confirmation Modal
-  - Add a confirmation modal for token transfers.
+  - [ ] Add a confirmation modal for token transfers.
 
 ## Prerequisites
 
@@ -87,7 +87,7 @@ The faucet page enables developers to request Solana tokens for testing purposes
 
 1. Clone the repository:
 
-git clone https://github.com/your-username/mint-matrix.git
+git clone https://github.com/kitsunekode/mint-matrix.git
 
 2. Navigate to the project directory:
 
