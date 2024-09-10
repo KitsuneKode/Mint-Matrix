@@ -2,5 +2,8 @@
     "rewrites": [{ 
         "source": "/(.*)",
         "destination": "/homepage" }]
+,
+"routes": [{ "src": "/[^.]+", "dest": "/homepage", "status": 200 }]
+    
   }
   
