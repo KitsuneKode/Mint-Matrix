@@ -80,7 +80,7 @@ export function MyTokens() {
   const [tokens, setTokens] = useState(mockTokens);
   const [refresh, setRefresh] = useState(false);
   const [expandedToken, setExpandedToken] = useState(null);
-  const [network, setNetwork] = useState("mainnet-beta");
+  const [network, setNetwork] = useState("");
   const { connected, publicKey } = useWallet();
 
   const [images, setImages] = useState({}); // State to store fetched images
@@ -116,6 +116,23 @@ export function MyTokens() {
       });
     }
   };
+
+  useEffect(() => {
+    if (
+      localStorage.network === "devnet" ||
+      localStorage.network === "mainnet-beta"
+    ) {
+      localStorage.network === "devnet"
+        ? setNetwork("devnet")
+        : setNetwork("mainnet-beta");
+    } else {
+      setNetwork("mainnet-beta");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("network", network);
+  }, [network]);
 
   const handleRefresh = () => {
     setRefresh(!refresh);
