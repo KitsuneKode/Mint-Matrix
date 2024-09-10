@@ -1,15 +1,13 @@
 
 ## Project Description
 
-Mint Matrix is a Web3 platform that provides an interactive introduction to blockchain technology. It features a wallet connection, token management, and a Solana faucet for developers. The application is built with React, Next.js, and Solana Web3.js, and styled with Tailwind CSS.
+Mint Matrix is a Web3 platform that provides an interactive introduction to blockchain technology. It features a wallet connection, token management, and a Solana faucet for developers. The application is built with React,  and Solana Web3.js, and styled with Tailwind CSS.
 
   Project Link: [https://mint-matrix.vercel.app/](https://mint-matrix.vercel.app/)
 
 
 
-<div align="center">
-  <img src="/path/to/mint-matrix-overview.png" alt="Mint Matrix Overview" width="600"/>
-</div>
+
 
 ## Table of Contents
 
@@ -30,8 +28,14 @@ Mint Matrix is a Web3 platform that provides an interactive introduction to bloc
 - 🚰 Solana faucet for development token requests
 - 📱 Responsive design for various screen sizes
 
+## Usage Demo
+
 <div align="center">
-  <img src="/path/to/features-showcase.gif" alt="Features Showcase" width="600"/>
+   <video width="600" controls>
+    <source src="https://github.com/user-attachments/assets/3ad77c12-4843-4ae6-9567-50d099b833fa" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  
 </div>
 
 ## Components
@@ -39,7 +43,7 @@ Mint Matrix is a Web3 platform that provides an interactive introduction to bloc
 ### 1. Homepage (`Homepage.jsx`)
 
 <div align="center">
-  <img src="/path/to/homepage-screenshot.png" alt="Homepage Screenshot" width="600"/>
+  <img src="public/Homepage.png" alt="Homepage Screenshot" width="600"/>
 </div>
 
 The homepage serves as the main entry point for users. It features:
@@ -50,7 +54,7 @@ The homepage serves as the main entry point for users. It features:
 ### 2. Token Management (`MyTokens.jsx`)
 
 <div align="center">
-  <img src="/path/to/token-management-screenshot.png" alt="Token Management Screenshot" width="600"/>
+  <img src="/public/mytokens.png" alt="Token Management Screenshot" width="600"/>
 </div>
 
 This page allows users to view and manage their tokens. Key features include:
@@ -61,7 +65,7 @@ This page allows users to view and manage their tokens. Key features include:
 ### 3. Solana Faucet (`Airdrop.jsx`)
 
 <div align="center">
-  <img src="/path/to/solana-faucet-screenshot.png" alt="Solana Faucet Screenshot" width="600"/>
+  <img src="/public/Faucet.png" alt="Solana Faucet Screenshot" width="600"/>
 </div>
 
 The faucet page enables developers to request Solana tokens for testing purposes. It includes:
@@ -78,7 +82,7 @@ The authentication modal asks users to sign a message to  prove ownership of a w
 - Access to other feature on success
 
 <div align="center">
-  <img src="/path/to/authentication-screenshot.png" alt="Authentication Screenshot" width="600"/>
+  <img src="/public/Authentication.png" alt="Authentication Screenshot" width="600"/>
 </div>
 
 
@@ -119,9 +123,7 @@ or
 
 yarn install
 
-<div align="center">
-<img src="/path/to/installation-guide.gif" alt="Installation Guide" width="600"/>
-</div>
+
 
 ## Usage
 
@@ -138,15 +140,13 @@ yarn dev
 
 3. Connect your Solana wallet to interact with the application.
 
-<div align="center">
-<img src="/path/to/usage-demo.gif" alt="Usage Demo" width="600"/>
-</div>
+
 
 ## Technologies Used
 
 <div align="center">
 <img src="https://img.shields.io/badge/-React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
-<img src="https://img.shields.io/badge/-Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js"/>
+
 <img src="https://img.shields.io/badge/-Solana-9945FF?style=for-the-badge&logo=solana&logoColor=white" alt="Solana"/>
 <img src="https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
 </div>
