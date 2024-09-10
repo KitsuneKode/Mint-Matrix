@@ -3,14 +3,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { Toaster } from "./components/ui/toaster.jsx";
-import { Analytics } from "@vercel/analytics";
-import { SpeedInsight } from "@vercel/speed-insights";
-
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 createRoot(document.getElementById("root")).render(
   <>
     <App />
     <Toaster />
     <Analytics />
-    <SpeedInsight />
+    <SpeedInsights />
   </>
 );
