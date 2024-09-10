@@ -232,22 +232,6 @@ export default function Airdrop() {
             Request Airdrop
           </button>
         </div>
-        {/* <div className="mt-8">
-          <div className=" text-center">
-            <input
-              readOnly
-              value={transactionSignature}
-              className="bg-[#1C2B44] border-none rounded-md px-4 min-w-fit max-w-full  py-2 focus:outline-cyan focus:ring-2 focus:ring-[#4B6BFF]"
-              placeholder="Transaction Signature"
-            />
-            <Copy
-              className="h-4 w-43 text-[#4B6BFF] cursor-pointer"
-              onClick={() =>
-                navigator.clipboard.writeText(transactionSignature)
-              }
-            />
-          </div>
-        </div> */}
 
         <div className="flex items-center mt-6">
           <input

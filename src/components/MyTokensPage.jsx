@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "./ui/switch";
+import Cookies from "js-cookie";
+import { AuthenticationModal } from "./Authentication";
 
 const mockTokens = [
   {
@@ -81,6 +83,7 @@ export function MyTokens() {
   const [refresh, setRefresh] = useState(false);
   const [expandedToken, setExpandedToken] = useState(null);
   const [network, setNetwork] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { connected, publicKey } = useWallet();
 
   const [images, setImages] = useState({}); // State to store fetched images
@@ -119,10 +122,10 @@ export function MyTokens() {
 
   useEffect(() => {
     if (
-      localStorage.network === "devnet" ||
-      localStorage.network === "mainnet-beta"
+      sessionStorage.network === "devnet" ||
+      sessionStorage.network === "mainnet-beta"
     ) {
-      localStorage.network === "devnet"
+      sessionStorage.network === "devnet"
         ? setNetwork("devnet")
         : setNetwork("mainnet-beta");
     } else {
@@ -131,7 +134,7 @@ export function MyTokens() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("network", network);
+    sessionStorage.setItem("network", network);
   }, [network]);
 
   const handleRefresh = () => {
@@ -156,6 +159,17 @@ export function MyTokens() {
         variant: "default",
         title: "Wallet Connected",
       });
+
+      const authCookie = Cookies.get("authSign");
+      if (authCookie) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        toast({
+          variant: "default",
+          title: "Authenticate to continue",
+        });
+      }
     } else {
       toast({
         variant: "default",
@@ -214,6 +228,9 @@ export function MyTokens() {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200 text-stone-900 p-8 font-sans">
+      {connected && !isAuthenticated && (
+        <AuthenticationModal setIsAuthenticated={setIsAuthenticated} />
+      )}
       <Card className="w-full max-w-4xl mx-auto relative overflow-hidden bg-white/80 backdrop-blur-sm">
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
           <div className="absolute top-0 left-0 w-24 h-24 border-t-4 border-l-4 border-red-500 rounded-tl-3xl"></div>
@@ -262,6 +279,7 @@ export function MyTokens() {
           )}
         </div>
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-4 h-[2px] w-full" />
+
         {!connected && (
           <>
             <div className="text-center text-2xl font-bold text-stone-500">

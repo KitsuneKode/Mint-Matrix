@@ -76,5 +76,5 @@
 }
 
 .wallet-adapter-button:not([disabled]):hover {
-  @apply bg-green-600 font-mono text-sm;
+  @apply bg-peach-200 font-mono;
 }

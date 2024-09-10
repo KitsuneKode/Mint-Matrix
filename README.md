@@ -36,7 +36,7 @@ Mint Matrix is a Web3 platform that provides an interactive introduction to bloc
 
 ## Components
 
-### 1. Homepage (`Homepage.tsx`)
+### 1. Homepage (`Homepage.jsx`)
 
 <div align="center">
   <img src="/path/to/homepage-screenshot.png" alt="Homepage Screenshot" width="600"/>
@@ -47,7 +47,7 @@ The homepage serves as the main entry point for users. It features:
 - Wallet connection functionality
 - Navigation to other sections of the application
 
-### 2. Token Management (`MyTokens.tsx`)
+### 2. Token Management (`MyTokens.jsx`)
 
 <div align="center">
   <img src="/path/to/token-management-screenshot.png" alt="Token Management Screenshot" width="600"/>
@@ -58,7 +58,7 @@ This page allows users to view and manage their tokens. Key features include:
 - Token sending functionality (simulated)
 - Network switching between mainnet and devnet
 
-### 3. Solana Faucet (`Airdrop.tsx`)
+### 3. Solana Faucet (`Airdrop.jsx`)
 
 <div align="center">
   <img src="/path/to/solana-faucet-screenshot.png" alt="Solana Faucet Screenshot" width="600"/>
@@ -69,13 +69,32 @@ The faucet page enables developers to request Solana tokens for testing purposes
 - Balance display and refresh
 - Transaction signature copying
 
+### 4 .  Authentication (`Authentication.jsx`)
+
+
+The authentication modal asks users to sign a message to  prove ownership of a wallet!
+- Write a Message
+- Verify payment from wallet
+- Access to other feature on success
+
+<div align="center">
+  <img src="/path/to/authentication-screenshot.png" alt="Authentication Screenshot" width="600"/>
+</div>
+
+
+
 ## TODO
 
-### 1. Send Tokens 
+### 1.
   - [ ] Integrate the send token logic to enable real token transfers.
   
-### 2. Confirmation Modal
-  - [ ] Add a confirmation modal for token transfers.
+### 2. 
+- [x] ~~Add authentication confirmation modal for user actions.~~
+
+### 3.
+-  [ ]  Fetch metadata from tokens of Token-Program v1!
+
+
 
 ## Prerequisites
 
