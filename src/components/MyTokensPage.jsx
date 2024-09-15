@@ -130,20 +130,22 @@ export function MyTokens() {
           description: "go to console for more details",
         });
       } else {
-        toast(
-          "Failed to fetch token image",
+        if (network === "devnet") {
+          toast(
+            "Failed to fetch token image",
 
-          {
-            description: `Open the console to see the error message. Go to https://cors-anywhere.herokuapp.com/ and click on "Request temporary access to the demo server" to fix this issue.
+            {
+              description: `Open the console to see the error message. Go to https://cors-anywhere.herokuapp.com/ and click on "Request temporary access to the demo server" to fix this issue.
           if the issue persists, the uri doesnot allow CORS.`,
-            action: {
-              label: "Link",
-              onClick: () => {
-                window.open("https://cors-anywhere.herokuapp.com/");
+              action: {
+                label: "Link",
+                onClick: () => {
+                  window.open("https://cors-anywhere.herokuapp.com/");
+                },
               },
-            },
-          }
-        );
+            }
+          );
+        }
       }
     } catch (error) {
       toast("Failed to fetch token image", {
