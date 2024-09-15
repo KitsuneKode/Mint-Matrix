@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import Cookie from "js-cookie";
 
 import PropTypes from "prop-types";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export function AuthenticationModal({ setIsAuthenticated }) {
   const [message, setMessage] = useState("");
@@ -33,9 +33,7 @@ export function AuthenticationModal({ setIsAuthenticated }) {
     const signature = await signMessage(encodedMessage);
 
     if (!ed25519.verify(signature, encodedMessage, publicKey.toBytes())) {
-      toast({
-        variant: "default",
-        title: "Verification Failed",
+      toast("Verification Failed", {
         description: "Message signature invalid, try again",
       });
 
@@ -43,19 +41,15 @@ export function AuthenticationModal({ setIsAuthenticated }) {
     }
 
     await Cookie.set("authSign", signature);
-    toast({
-      variant: "default",
-      title: "Verification successful",
-      description: "Signature : " + signature,
+    toast("Verification successful", {
+      // description: "Signature : " + signature.toString("hex"),
     });
     return signature;
   };
 
   const handleVerify = async () => {
     if (!message) {
-      toast({
-        variant: "default",
-        title: "Message empty",
+      toast("Message empty", {
         description: "Please add a message to continue verifying",
       });
       return;
@@ -64,9 +58,7 @@ export function AuthenticationModal({ setIsAuthenticated }) {
     setIsLoading(true);
 
     if (!signMessage) {
-      toast({
-        variant: "default",
-        title: "Wallet does not support message signing!",
+      toast("Wallet does not support message signing!", {
         description: "Please connect a wallet that supports message signing.",
       });
 
@@ -87,11 +79,7 @@ export function AuthenticationModal({ setIsAuthenticated }) {
 
   useEffect(() => {
     if (isOpen) {
-      toast({
-        variant: "default",
-        title: "Authentication",
-        description: "Please verify your identity",
-      });
+      toast("Please verify your identity");
     }
   }, [isOpen]);
 

@@ -9,8 +9,8 @@ import {
 } from "@solana/wallet-adapter-react-ui";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useToast } from "@/hooks/use-toast";
 import { AuthenticationModal } from "./Authentication";
+import { toast } from "sonner";
 
 import Cookies from "js-cookie";
 
@@ -67,41 +67,30 @@ export function Homepage() {
     setCurrentSlide((prev) => ((prev - 2 + totalSlides) % totalSlides) + 1);
 
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    toast({
-      variant: "default",
-      title: "Welcome to Mint Matrix",
-      description: "Learn and earn with Web3 technologies",
-    });
-  }, [toast]);
+    const firstVisit = sessionStorage.getItem("firstVisit");
+    if (firstVisit === null) {
+      toast("Welcome to Mint Matrix", {
+        description: "Learn and earn with Web3 technologies",
+      });
+      sessionStorage.setItem("firstVisit", "true");
+    }
+  }, []);
 
   useEffect(() => {
     if (connected) {
-      toast({
-        variant: "default",
-        title: "Wallet Connected",
-      });
+      toast("Wallet Connected");
       const authCookie = Cookies.get("authSign");
       if (authCookie) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        toast({
-          variant: "default",
-          title: "Authenticate to continue",
-        });
+        toast("Authenticate to continue");
       }
-    } else {
-      toast({
-        variant: "default",
-        title: "Wallet Not Connected",
-        description: "Connect your wallet to continue",
-      });
     }
-  }, [connected, toast]);
+  }, [connected]);
 
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900 p-8 font-sans">
@@ -198,6 +187,7 @@ export function Homepage() {
             <a
               className="font-bold text-sm text-red-500 hover:text-red-600 transition-all ease-in-out hover:text-lg"
               href="https://github.com/kitsunekode"
+              target="_blank"
             >
               KitsuneKode
             </a>

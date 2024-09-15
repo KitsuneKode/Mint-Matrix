@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Send } from "lucide-react";
+import { ChevronDown, ChevronUp, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,12 +20,26 @@ import {
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { getTokenAccounts } from "@/scripts/tokens";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "./ui/switch";
+import { toast } from "sonner";
+
 import Cookies from "js-cookie";
 import { AuthenticationModal } from "./Authentication";
+import { PublicKey } from "@solana/web3.js";
+import { Transaction, Connection } from "@solana/web3.js";
+
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import {
+  getAccount,
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
+  createTransferInstruction,
+  TokenAccountNotFoundError,
+  TokenInvalidAccountOwnerError,
+  createAssociatedTokenAccountInstruction,
+} from "@solana/spl-token";
 
 const mockTokens = [
   {
@@ -84,13 +98,26 @@ export function MyTokens() {
   const [expandedToken, setExpandedToken] = useState(null);
   const [network, setNetwork] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { connected, publicKey } = useWallet();
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { connected, publicKey, sendTransaction } = useWallet();
 
   const [images, setImages] = useState({}); // State to store fetched images
-  const { toast } = useToast();
   const handlefetch = async (token) => {
+    if (!connected) {
+      return;
+    }
+
+    if (token.uri === undefined || token.length === 0) {
+      return;
+    }
+
     const proxyUrl = "https://cors-anywhere.herokuapp.com/";
     try {
+      toast("Fetching token image", {
+        description: `Fetching image for token ${token.name}`,
+      });
       const response = await fetch(proxyUrl + token.uri);
       if (response.ok) {
         const json = await response.json();
@@ -98,42 +125,58 @@ export function MyTokens() {
           ...prevImages,
           [token.id]: json.image, // Store image by token ID
         }));
+      } else if (response.status === 500) {
+        toast.error("URL doesn't gives u access", {
+          description: "go to console for more details",
+        });
+      } else {
+        toast(
+          "Failed to fetch token image",
+
+          {
+            description: `Open the console to see the error message. Go to https://cors-anywhere.herokuapp.com/ and click on "Request temporary access to the demo server" to fix this issue.
+          if the issue persists, the uri doesnot allow CORS.`,
+            action: {
+              label: "Link",
+              onClick: () => {
+                window.open("https://cors-anywhere.herokuapp.com/");
+              },
+            },
+          }
+        );
       }
     } catch (error) {
-      console.error(`Failed to fetch image for token ${token.name}:`, error);
-      toast({
-        variant: "default",
-        title: "Failed to fetch token image",
-        description: `Open the console to see the error message. Go to https://cors-anywhere.herokuapp.com/ and click on "Request temporary access to the demo server" to fix this issue. 
-        if the issue persists, the uri doesnot allow CORS.`,
-        action: (
-          <ToastAction
-            altText="Link"
-            className="hover:bg-red-600"
-            // ref={<Navigate to="https://cors-anywhere.herokuapp.com/" />}
-            onClick={() => window.open("https://cors-anywhere.herokuapp.com/")}
-          >
-            Link
-          </ToastAction>
-        ),
+      toast("Failed to fetch token image", {
+        description: "url couldnot be fetch, go to console for more details",
       });
+
+      console.error(`Failed to fetch image for token ${token.name}:`, error);
     }
   };
 
   useEffect(() => {
-    if (
-      sessionStorage.network === "devnet" ||
-      sessionStorage.network === "mainnet-beta"
-    ) {
-      sessionStorage.network === "devnet"
+    if (sessionStorage.getItem("network")) {
+      sessionStorage.getItem("network") === "devnet"
         ? setNetwork("devnet")
         : setNetwork("mainnet-beta");
     } else {
       setNetwork("mainnet-beta");
     }
+
+    if (sessionStorage.getItem("firstTokenPageVisit") === null) {
+      toast("Welcome to Tokens Page", {
+        description:
+          "You can view your tokens here. To navigative to homepage, click on the icon on the top left corner.",
+      });
+
+      sessionStorage.setItem("firstTokenPageVisit", "true");
+    }
   }, []);
 
   useEffect(() => {
+    if (sessionStorage.getItem("firstTokenPageVisit") !== null) {
+      toast("network changed", network);
+    }
     sessionStorage.setItem("network", network);
   }, [network]);
 
@@ -141,43 +184,165 @@ export function MyTokens() {
     setRefresh(!refresh);
   };
 
-  const handleSend = () => {
-    // Handle send logic here
-    toast({
-      variant: "default",
-      title: "Feature on Production",
-      description: "This feature will be implemented on the next update",
-    });
+  //send logic of tokens
+  async function getOrCreateATA(
+    network,
+    mintAddress,
+    recipientAddress,
+    tokenProgram
+  ) {
+    // let rpcEndpoint = "";
+    // if (network === "mainnet-beta") {
+    //   rpcEndpoint =
+    //     "https://solana-mainnet.g.alchemy.com/v2/JxeseX6EEjWMsFemERtHiIEUumVqW7iG";
+    // } else if (network === "devnet") {
+    //   rpcEndpoint =
+    //     "https://solana-devnet.g.alchemy.com/v2/JxeseX6EEjWMsFemERtHiIEUumVqW7iG";
+    // }
+
+    const rpcEndpoint = `https://api.${network}.solana.com`;
+
+    console.log(rpcEndpoint, "rpc");
+    const connection = new Connection(rpcEndpoint);
+
+    const associatedToken = getAssociatedTokenAddressSync(
+      new PublicKey(mintAddress),
+      new PublicKey(recipientAddress),
+      false,
+      tokenProgram === "spl-token" ? TOKEN_PROGRAM_ID : TOKEN_2022_PROGRAM_ID
+    );
+
+    console.log(associatedToken, "associatedToken");
+    let account;
+
+    try {
+      account = await getAccount(
+        connection,
+        associatedToken,
+        "confirmed",
+        tokenProgram === "spl-token" ? TOKEN_PROGRAM_ID : TOKEN_2022_PROGRAM_ID
+      );
+
+      console.log(account, "account get");
+    } catch (error) {
+      if (
+        error instanceof TokenAccountNotFoundError ||
+        error instanceof TokenInvalidAccountOwnerError
+      ) {
+        try {
+          const programId =
+            tokenProgram === "spl-token"
+              ? TOKEN_PROGRAM_ID
+              : TOKEN_2022_PROGRAM_ID;
+
+          const transaction = new Transaction().add(
+            createAssociatedTokenAccountInstruction(
+              publicKey,
+              associatedToken,
+              recipientAddress,
+              mintAddress,
+              programId
+            )
+          );
+          console.log(transaction, "transaction create successful");
+          await sendTransaction(transaction, connection);
+          console.log("transaction sent");
+        } catch (error) {
+          console.error("Failed to create associated token account", error);
+        }
+      }
+    }
+    return { account, connection };
+  }
+
+  const handleSend = async (tokenProgram, decimal, mintAddress, symbol) => {
+    console.log("Amount", amount);
+    console.log("Recipient", recipient, typeof recipient);
+
+    if (!connected) {
+      return;
+    }
+
+    if (!publicKey) throw new WalletNotConnectedError();
+
+    const recipientAddress = new PublicKey(recipient);
+
+    if (!PublicKey.isOnCurve(recipientAddress.toBytes())) {
+      toast("Invalid Recipient Address", {
+        description: "Please enter a valid recipient address",
+      });
+      return;
+    }
+
+    const loadingToastId = toast.loading("Processing transaction..."); // Start loading toast
+
+    setIsLoading(true);
+    const mint = new PublicKey(mintAddress);
+    const sendersATA = getAssociatedTokenAddressSync(
+      mint,
+      publicKey,
+      false,
+      tokenProgram === "spl-token" ? TOKEN_PROGRAM_ID : TOKEN_2022_PROGRAM_ID
+    );
+    console.log(sendersATA, typeof sendersATA);
+
+    try {
+      const { account, connection } = await getOrCreateATA(
+        network,
+        mint,
+        recipientAddress,
+        tokenProgram
+      );
+      const receiversATA = account;
+
+      let amountInLamports =
+        BigInt(amount) * BigInt(Math.pow(10, parseInt(decimal)));
+
+      console.log(amountInLamports);
+
+      const tx = new Transaction().add(
+        createTransferInstruction(
+          sendersATA,
+          receiversATA.address,
+          publicKey,
+          amountInLamports,
+          [],
+          tokenProgram === "spl-token"
+            ? TOKEN_PROGRAM_ID
+            : TOKEN_2022_PROGRAM_ID
+        )
+      );
+      console.log("before transaction", tx);
+      await sendTransaction(tx, connection);
+      console.log("after transaction");
+
+      toast.success(`Transaction Sent: ${amount} ${symbol} to ${recipient}`); // Success toast
+    } catch (error) {
+      toast.error(`Transaction failed: ${error.message}`); // Error toast
+      console.error("Transaction failed:", error);
+    } finally {
+      toast.dismiss(loadingToastId); // Stop loading toast
+      setIsLoading(false);
+    }
   };
 
   const handleExpand = (id) => {
     setExpandedToken(expandedToken === id ? null : id);
   };
+
   useEffect(() => {
     if (connected) {
-      toast({
-        variant: "default",
-        title: "Wallet Connected",
-      });
+      toast("Wallet Connected");
 
       const authCookie = Cookies.get("authSign");
       if (authCookie) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        toast({
-          variant: "default",
-          title: "Authenticate to continue",
-        });
+        toast("Authenticate to continue");
       }
-    } else {
-      toast({
-        variant: "default",
-        title: "Wallet Not Connected",
-        description: "Connect your wallet to continue",
-      });
     }
-  }, [connected, toast]);
+  }, [connected]);
 
   useEffect(() => {
     const fetchTokens = async () => {
@@ -216,15 +381,6 @@ export function MyTokens() {
     });
   }, [tokens]);
 
-  useEffect(() => {
-    toast({
-      variant: "default",
-      title: "Welcome to Tokens Page",
-      description:
-        "You can view your tokens here. To navigative to homepage, click on the icon on the top left corner.",
-    });
-  }, [toast]);
-
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200 text-stone-900 p-8 font-sans">
@@ -250,14 +406,16 @@ export function MyTokens() {
             />
             <div className="border border-gray-200 border-opacity-40 rounded-full p-3 bg-gray-800">
               <Switch
-                id="network"
+                id="networkx"
                 className="m-2 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                 checked={network === "devnet"}
-                onCheckedChange={(checked) => {
-                  setNetwork(checked ? "devnet" : "mainnet-beta");
+                onCheckedChange={() => {
+                  setNetwork(
+                    network === "mainnet-beta" ? "devnet" : "mainnet-beta"
+                  );
                 }}
               />
-              <Label htmlFor="network" className="text-lg font-bold mx-2">
+              <Label htmlFor="networkx" className="text-lg font-bold mx-2">
                 Use Devnet
               </Label>
             </div>
@@ -421,8 +579,10 @@ export function MyTokens() {
                           </Label>
                           <Input
                             id="recipient"
+                            defaultValue={null}
                             placeholder="Recipient address"
                             className="col-span-3 rounded-lg"
+                            onChange={(e) => setRecipient(e.target.value)}
                           />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -434,16 +594,30 @@ export function MyTokens() {
                           </Label>
                           <Input
                             id="amount"
+                            defaultValue={0}
                             placeholder="Amount to send"
                             className="col-span-3 rounded-lg"
+                            onChange={(e) => setAmount(e.target.value)}
                           />
                         </div>
                       </div>
                       <Button
+                        disabled={isLoading}
                         className="w-full bg-red-500 hover:bg-red-600 text-white text-lg py-6 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105"
-                        onClick={handleSend}
+                        onClick={() =>
+                          handleSend(
+                            token.tokenProgram,
+                            token.decimals,
+                            token.mintAddress,
+                            token.symbol
+                          )
+                        }
                       >
-                        Confirm Send
+                        {isLoading ? (
+                          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                        ) : (
+                          "CONFIRM SEND"
+                        )}
                       </Button>
                     </DialogContent>
                   </Dialog>

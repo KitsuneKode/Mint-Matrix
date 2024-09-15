@@ -5,7 +5,7 @@ import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function Airdrop() {
   const [balance, setBalance] = useState(0);
@@ -13,35 +13,28 @@ export default function Airdrop() {
   const [transactionSignature, setTransactionSignature] = useState("");
   const [amount, setAmount] = useState(0);
   const [showBalance, setShowBalance] = useState("false");
-  const connection = new Connection(
-    "https://solana-devnet.g.alchemy.com/v2/AnuiwUGPagWQk_nyL9mZNK_cfPlJBkKD"
-  );
+  const connection = new Connection("https://api.devnet.solana.com");
   const { connected, publicKey } = useWallet();
-  const { toast } = useToast();
   const navigate = useNavigate();
+  let toastIDBalance;
   const handleShowBalance = () => {
-    setShowBalance(!showBalance);
+    if (amount) {
+      setShowBalance(!showBalance);
+    }
+
+    toastIDBalance = toast.loading("Fetching Balance");
+    console.log(toastIDBalance);
   };
 
   const handleAirdrop = async (amount) => {
     if (!walletConnected) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet first.",
-      });
-
-      alert("Please connect your wallet first.");
+      toast.warning("Please connect your wallet first.");
 
       return;
     }
 
     if (amount === 0) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Amount",
-        description: "Please select an amount to request an airdrop.",
-      });
+      toast.warning("Please select an amount to request an airdrop.");
       return;
     }
 
@@ -51,11 +44,7 @@ export default function Airdrop() {
         amount * LAMPORTS_PER_SOL
       );
 
-      toast({
-        variant: "default",
-        title: "Airdrop Requested",
-        description: "Airdrop in progress. Please wait for confirmation.",
-      });
+      const toastID = toast.loading("Airdrop Requested");
       // alert("Airdrop in progress. Please wait for confirmation.");
 
       // Polling to confirm transaction status
@@ -75,25 +64,21 @@ export default function Airdrop() {
       }
 
       if (transactionConfirmed) {
-        toast({
-          variant: "default",
-          title: `Airdrop of ${amount} Completed `,
-        });
+        toast.dismiss(toastID);
+        toast.success(`Airdrop of ${amount} Completed `);
         // alert("Airdrop completed successfully.");
         setTransactionSignature(airdropSignature);
       } else {
         // alert("Transaction not confirmed in time. Check the Solana Explorer.");
-        toast({
-          variant: "destructive",
-          title: "Transaction not confirmed in time",
+        toast.dismiss(toastID);
+
+        toast.warning("Transaction not confirmed in time", {
           description: "Check the Solana Explorer.",
         });
       }
     } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Airdrop failed",
-        description: `Please try again. Error: ${e}`,
+      toast.error("Airdrop failed", {
+        description: `Please try again.The Error is printed in the console.`,
       });
       // alert("Airdrop failed. Please try again.", e);
       console.error(e);
@@ -110,7 +95,11 @@ export default function Airdrop() {
         try {
           const balance = await connection.getBalance(publicKey);
           setBalance(balance / LAMPORTS_PER_SOL);
+          toast.dismiss(toastIDBalance);
+          toast.success("Balance Fetched");
         } catch (e) {
+          toast.dismiss(toastIDBalance);
+          toast.error("Balance Fetched Failed");
           console.error("Error fetching balance:", e);
         }
       };
@@ -121,39 +110,27 @@ export default function Airdrop() {
   }, [publicKey, walletConnected, showBalance]);
 
   useEffect(() => {
-    toast({
-      variant: "default",
-      title: "Welcome to Airdrop",
-      description:
-        "You can request airdrop for development here. To navigative back to homepage, click on the icon on the top left corner.",
-    });
-  }, [toast]);
-  useEffect(() => {
-    if (connected) {
-      toast({
-        variant: "default",
-        title: "Wallet Connected",
-      });
-    } else {
-      toast({
-        variant: "default",
-        title: "Wallet Not Connected",
-        description: "Connect your wallet to continue",
+    const firstAirdropVisit = sessionStorage.getItem("firstAirdropVisit");
+    if (firstAirdropVisit === null) {
+      toast.message("Welcome to Sol Faucet", {
+        description:
+          "You can request airdrop for development here. To navigative back to homepage, click on the icon on the top left corner.",
       });
     }
-  }, [connected, toast]);
+    sessionStorage.setItem("firstAirdropVisit", "true");
+  }, []);
+  useEffect(() => {
+    if (connected) {
+      toast.success("Wallet Connected");
+    }
+  }, [connected]);
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(transactionSignature);
-      toast({
-        variant: "default",
-        title: "Transaction signature copied to clipboard",
-      });
+      toast.message("Transaction signature copied to clipboard");
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Failed to copy transaction signature",
+      toast.error("Failed to copy transaction signature", {
         description: `Error: ${err}`,
       });
 
